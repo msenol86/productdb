@@ -1,7 +1,7 @@
 # productdb
 JSON Consumer Products Database System
 
-A project intends to store all cosumer products' information in JSON.  
+A project intends to store data of all cosumer products in the world as JSON
 
 Requirements:
 * Python 3.4+
@@ -10,5 +10,12 @@ Requirements:
 
 # Setup
 1. Rename **settings.default.py** to **settings.py**
-2. Create a MongoDB and set **mongo_uri** in **settings.py** 
+2. Create a database in Mongo and set **mongo_uri** in **settings.py** 
 
+## Database Setup
+1. Create a collection with name **types**
+2. Create a collection with name **products**
+3. Insert data below to **types** collection 
+```javascript 
+{"meta" : { "name" : "product", "extends" : "", "version" : 1 } }
+```
