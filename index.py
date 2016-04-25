@@ -10,7 +10,7 @@ def _json_fail():
     return jsonify({"result": "fail"})
 
 
-def _explode_and_fetch(type_label: str, fetch_function: typing.Callable[[], []]) -> Response:
+def _explode_and_fetch(type_label: str, fetch_function: typing.Callable[[typing.Any], typing.Any]) -> Response:
     result_object = api.explode_type_label(type_label.strip())
     if result_object:
         fetch_json = fetch_function(**result_object)
