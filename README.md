@@ -22,10 +22,11 @@ Requirements:
 
 
 # API Guide
-## Avaiable API urls
+## Avaiable Type API urls
 ### /get_type/\<type_label\>
 Example: 
 * /get_type/book_v1
+
 Result: 
 ```javascript
 {
@@ -41,3 +42,50 @@ Result:
   }
 }
 ```
+### /get_children_types/\<type_label\>
+Example:
+* /get_type/product_v1
+
+Result:
+```javascript
+{
+  "result": [
+    {
+      "meta": {
+        "extends": {
+          "name": "product",
+          "version": 1
+        },
+        "name": "book",
+        "version": 1
+      }
+    },
+    {
+      "meta": {
+        "extends": {
+          "name": "product",
+          "version": 1
+        },
+        "name": "electronics",
+        "version": 1
+      }
+    }
+  ]
+}
+```
+
+### /get_parent_type/\<type_label\>
+
+Example: /get_parent_type/book_v1
+
+```javascript
+{
+  "result": {
+    "meta": {
+      "extends": "",
+      "name": "product",
+      "version": 1
+    }
+  }
+}
+````
