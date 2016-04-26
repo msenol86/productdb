@@ -19,3 +19,25 @@ Requirements:
 ```javascript 
 {"meta" : { "name" : "product", "extends" : "", "version" : 1 } }
 ```
+
+
+# API Guide
+## Avaiable API urls
+### /get_type/\<type_label\>
+Example: 
+* /get_type/book_v1
+Result: 
+```javascript
+{
+  "result": {
+    "meta": {
+      "extends": {
+        "name": "product",
+        "version": 1
+      },
+      "name": "book",
+      "version": 1
+    }
+  }
+}
+```
