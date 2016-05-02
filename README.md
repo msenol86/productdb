@@ -11,6 +11,7 @@ Requirements:
 # Setup
 1. Rename **settings.default.py** to **settings.py**
 2. Create a database in Mongo and set **mongo_uri** in **settings.py** 
+3. pip install -r requirements.txt
 
 ## Database Setup
 1. Create a collection with name **types**
