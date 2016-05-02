@@ -10,7 +10,8 @@ def check_product_against_type(type_label: str, product_json: str):
     current_type_dict = type_api.get_type(type_name, type_version)
     check_1 = _check_helper_1(product_dict, type_name, type_version)
     check_2 = _check_helper_2(product_dict, current_type_dict)
-    return check_1 and check_2
+    check_3 = _check_helper_3(product_dict, current_type_dict)
+    return check_1 and check_2 and check_3
 
 
 def _eliminate_meta_data_from_product_dict(product_dict: Dict[str, Any]):
