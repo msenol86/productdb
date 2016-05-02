@@ -1,15 +1,58 @@
 import json
 import type_api
+import copy
 from typing import Dict, Optional, Union, Tuple, Any
 
 
 def check_product_against_type(type_label: str, product_json: str):
     product_dict = json.loads(product_json)
     type_name, type_version = type_api.explode_type_label_as_tuple(type_label)
-    if _check_helper_1(product_dict, type_name, type_version):
-        pass
-    else:
-        return False
+    current_type_dict = type_api.get_type(type_name, type_version)
+    check_1 = _check_helper_1(product_dict, type_name, type_version)
+    check_2 = _check_helper_2(product_dict, current_type_dict)
+    return check_1 and check_2
+
+
+def _eliminate_meta_data_from_product_dict(product_dict: Dict[str, Any]):
+    tmp_product_dict = copy.deepcopy(product_dict)
+    del tmp_product_dict['type_name']
+    del tmp_product_dict['type_version']
+    return tmp_product_dict
+
+
+def _eliminate_meta_data_from_type_dict(type_dict: Dict[str, Any]):
+    tmp_type_dict = copy.deepcopy(type_dict)
+    del tmp_type_dict['meta']
+    return tmp_type_dict
+
+
+test_type_1 = """{
+  "author": {
+    "type": "string",
+    "desc": "Title of Book"
+  },
+  "title": {
+    "type": "string",
+    "desc": "Title of Book"
+  },
+  "meta": {
+    "name": "book",
+    "version": 3,
+    "extends": {
+      "name": "book",
+      "version": 2
+    }
+  }
+}"""
+test_type_1 = test_type_1.strip()
+test_product_1 = """
+{"type_name": "book", "type_version": 3, "author": "Tolkien", "title": "Lord of the Rings"}
+"""
+test_product_1 = test_product_1.strip()
+
+
+assert _eliminate_meta_data_from_product_dict(json.loads(test_product_1)) == {"author": "Tolkien", "title": "Lord of the Rings"}
+assert _eliminate_meta_data_from_type_dict(json.loads(test_type_1)) == {"author": {"type": "string", "desc": "Title of Book" }, "title": {"type": "string", "desc": "Title of Book"}}
 
 
 def _check_helper_1(product_dict: Dict[str, Any], type_name, type_version):
@@ -55,3 +98,47 @@ test_product_1 = """
 test_product_1 = test_product_1.strip()
 
 assert _check_helper_2(json.loads(test_product_1), json.loads(test_type_1)) == True
+
+
+def compare_field_type(field_value: Any, field_type_string):
+    if field_type_string == type_api.FieldType.STR.value:
+        return type(field_value) is str
+    elif field_type_string == type_api.FieldType.INT.value:
+        return type(field_value) is int
+
+assert compare_field_type("Tolkien", type_api.FieldType.STR.value)
+assert compare_field_type(1, type_api.FieldType.INT.value)
+assert compare_field_type(1, type_api.FieldType.STR.value) == False
+
+
+def _check_helper_3(product_dict, type_dict):
+    """ Check the type of field values """
+    product_dict = _eliminate_meta_data_from_product_dict(product_dict)
+    type_dict = _eliminate_meta_data_from_type_dict(type_dict)
+    return all(compare_field_type(product_field_value, type_dict[product_field_key]["type"]) for product_field_key, product_field_value in product_dict.items())
+
+
+test_product_dict_1 = {"type_name": "book", "type_version": 3, "author": "Tolkien", "title": "Lord of the Rings"}
+test_product_dict_2 = {"type_name": "book", "type_version": 3, "author": 12, "title": "Lord of the Rings"}
+
+test_type_dict = {
+    "author": {
+        "type": "string",
+        "desc": "Title of Book"
+    },
+    "title": {
+        "type": "string",
+        "desc": "Title of Book"
+    },
+    "meta": {
+        "name": "book",
+        "version": 3,
+        "extends": {
+            "name": "book",
+            "version": 2
+        }
+    }
+}
+
+assert _check_helper_3(test_product_dict_1, test_type_dict)
+assert _check_helper_3(test_product_dict_2, test_type_dict) == False
