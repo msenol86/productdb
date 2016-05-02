@@ -1,17 +1,20 @@
 import json
 import type_api
 import copy
+import pymongo
+import settings
 from typing import Dict, Optional, Union, Tuple, Any
 
 
-def check_product_against_type(type_label: str, product_json: str):
+client = pymongo.MongoClient(settings.mongo_uri)
+product_db = client.get_default_database()
+
+
+def check_product_against_type(type_label: str, product_json: str) -> bool:
     product_dict = json.loads(product_json)
     type_name, type_version = type_api.explode_type_label_as_tuple(type_label)
     current_type_dict = type_api.get_type(type_name, type_version)
-    check_1 = _check_helper_1(product_dict, type_name, type_version)
-    check_2 = _check_helper_2(product_dict, current_type_dict)
-    check_3 = _check_helper_3(product_dict, current_type_dict)
-    return check_1 and check_2 and check_3
+    return _check_helper_1(product_dict, type_name, type_version) and _check_helper_2(product_dict, current_type_dict) and _check_helper_3(product_dict, current_type_dict)
 
 
 def _eliminate_meta_data_from_product_dict(product_dict: Dict[str, Any]):
@@ -143,3 +146,18 @@ test_type_dict = {
 
 assert _check_helper_3(test_product_dict_1, test_type_dict)
 assert _check_helper_3(test_product_dict_2, test_type_dict) == False
+
+
+def insert_product(type_label: str, product_json: str) -> Optional[int]:
+    if check_product_against_type(type_label, product_json):
+        product_dict = json.load(product_json)
+        insert_result = product_db.products.insert_one(product_dict)
+        if insert_result.acknowledged:
+            return int(str(insert_result.inserted_id))
+        else:
+            print("Product not added")
+            return None
+    else:
+        print("Product not added")
+        return None
+
