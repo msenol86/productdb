@@ -6,7 +6,9 @@ import json
 import copy
 import settings
 import re
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, Tuple
+
+
 
 
 class FieldType(Enum):
@@ -39,6 +41,24 @@ assert explode_type_label("book_v345") == {'meta_name': 'book', 'meta_version': 
 assert explode_type_label("bookv345") is None
 
 
+def explode_type_label_as_tuple(type_label: str) ->Optional[Tuple[str, int]]:
+    """ return (meta_name, meta_version)"""
+    exploded_dict = explode_type_label(type_label)
+    if exploded_dict:
+        return exploded_dict["meta_name"], exploded_dict["meta_version"]
+    else:
+        return None
+
+assert explode_type_label_as_tuple("horror_v2_book_v1") == ('horror_v2_book', 1)
+
+
+def implode_type_label(type_meta_name:str, type_meta_version: int):
+    return type_meta_name + "_v" + str(type_meta_version)
+
+assert implode_type_label("book", 1) == "book_v1"
+assert implode_type_label("horror_book", 45) == "horror_book_v45"
+
+
 def generate_field(field_name: str, field_type: FieldType, desc: str="") -> Dict[str, str]:
     return {field_name: {"type": field_type.value, "desc": desc}}
 
@@ -65,6 +85,7 @@ assert get_type() is None
 assert get_type("") is None
 assert get_type(meta_name="", meta_version=2) is None
 assert get_type(meta_name="dummy text") is None
+
 
 
 def get_summary(meta_name: Optional[str]=None,
